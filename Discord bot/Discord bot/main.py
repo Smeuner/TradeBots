@@ -29,8 +29,9 @@ bot.load_extensions_from("./src/extensions/", recursive=True)
 bot.run(
     status = hikari.Status.DO_NOT_DISTURB,
     activity = hikari.Activity(
-        name = "with your kids",
+        name = "cashmoney",
         type = hikari.ActivityType.PLAYING,
         
     ),
 )
+
