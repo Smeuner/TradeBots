@@ -101,3 +101,33 @@ Discord bot/
 - The external `v4-bot.exe` files are **not** included.
 - The system is designed for Windows-based executable bots.
 
+## Creating and Inviting a Discord Bot
+
+1. Go to the Discord Developer Portal:  
+   https://discord.com/developers/applications
+
+2. Click **New Application**, choose a name, and create the app.
+
+3. In the sidebar, open **Bot** → click **Add Bot**.
+
+4. Under **Token**, click **Reset Token** and copy your bot token.  
+   You will paste this into `src/config.py` later.
+
+5. Enable the required intents under the **Privileged Gateway Intents** section:
+   - Presence Intent  
+   - Server Members Intent  
+   - Message Content Intent  
+
+6. In the sidebar, go to **OAuth2 → URL Generator**.
+
+7. Under **Scopes**, select:
+   - `bot`
+   - `applications.commands`
+
+8. Under **Bot Permissions**, select:
+   - **Administrator**  
+     (or select only the permissions you want the bot to have)
+
+9. Copy the generated URL and open it in your browser to invite the bot to your server.
+
+10. The bot will appear offline until you run `main.py`.
