@@ -13,7 +13,7 @@ The bot is written for **Python 3.11.7** and uses:
 ## 1. Requirements
 
 - Windows 10/11 or Windows Server  
-- Python **3.11.7** (exact version recommended)  
+- Python **3.11.7** (exact version recommended)
 - A Discord bot token  
 - Your own folders containing `v4-bot.exe`
 
@@ -21,7 +21,8 @@ The bot is written for **Python 3.11.7** and uses:
 
 ## 2. Installation
 
-You can install everything using the batch file.
+Install Python at https://www.python.org/downloads/release/python-3117/ (Check "add Python to PATH" when you run the installer)
+You can install everything else using the batch file.
 
 ### Automatic install
 
