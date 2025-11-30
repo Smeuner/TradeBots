@@ -21,7 +21,7 @@ The bot is written for **Python 3.11.7** and uses:
 
 ## 2. Installation
 
-Install Python at https://www.python.org/downloads/release/python-3117/ (Check "add Python to PATH" when you run the installer)
+[Install Python](https://www.python.org/downloads/release/python-3117/) (Check "add Python to PATH" when you run the installer)
 You can install everything else using the batch file.
 
 ### Automatic install
