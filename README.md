@@ -49,13 +49,29 @@ config.py
 Then edit `config.py` and set:
 
 - `DISCORD_TOKEN` — your Discord bot token  
-- `BOT_EXECUTABLES` — names + paths to your `v4-bot.exe` folders  
+- `BOT_EXECUTABLES` — names + paths to your `v4-bot.exe` folders
 - `ALERT_CHANNEL_ID` — channel where the status panel is posted  
 - `ALERT_USER_ID` — user to ping when a bot goes offline  
 
 `config.py` is your private file and should not be shared.
 
 ---
+
+## Optional: Generate BOT_EXECUTABLES Automatically
+
+If your bot folders are always located on your Desktop and contain `v4-bot.exe` and `run.cmd`, you can automatically generate the required `BOT_EXECUTABLES` block for `src/config.py`.
+
+Run the script:
+
+```bat
+python generate_bot_list.py
+```
+
+It will detect all valid bot folders on your Desktop and print a ready-to-paste dictionary.
+
+Copy this block into your `src/config.py`.
+
+Keep in mind that this will add all folders with those 2 files to the variable. you only want the actual bot paths in there. 
 
 ## 4. Running the bot
 
