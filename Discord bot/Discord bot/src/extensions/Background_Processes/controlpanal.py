@@ -230,42 +230,28 @@ def _read_log_tail(log_path: str, max_lines: int = 30) -> str:
 
 
 # -----------------------------
-# UI builder (shared)
+# UI builder (simple buttons)
 # -----------------------------
 def _build_panel_ui(rest: hikari.api.RESTClient) -> tuple:
-    # Status lines using startup_detected
-    lines = []
-    for name in BOT_EXECUTABLES.keys():
-        emoji = "🟢" if startup_detected.get(name, False) else "🔴"
-        lines.append(f"{emoji} **{name}**")
-
-    if not lines:
-        lines.append("⚠️ No bots configured in BOT_EXECUTABLES.")
-
-    # For panel default selection, prefer ALERT_USER_ID if present
+    # Determine which bot (if any) to show as "selected" in the menu
     selected_for_panel: Optional[str] = None
     if ALERT_USER_ID in last_selected:
         selected_for_panel = last_selected[ALERT_USER_ID]
     elif last_selected:
         selected_for_panel = next(iter(last_selected.values()))
 
-    desc_extra = ""
-    if selected_for_panel:
-        desc_extra = f"\n\nCurrently selected: **{selected_for_panel}**"
+    description = "Select a bot from the menu below, then use the buttons to Start, Stop, Restart, or view the log tail."
 
-    description = (
-        "Select a bot from the menu below, then use the buttons to control it.\n\n"
-        + "\n".join(lines)
-        + desc_extra
-    )
+    if selected_for_panel:
+        description += f"\n\nCurrently selected: **{selected_for_panel}**"
 
     embed = (
         hikari.Embed(
-            title="🛠 Unified Bot Control Panel",
+            title="Bot Control Panel",
             description=description,
             color=0x2F3136,
         )
-        .set_footer("Owner-only • Uses process & log monitors, do not spam restart.")
+        .set_footer("Owner-only controls.")
     )
 
     # Row 1: select menu
@@ -278,8 +264,7 @@ def _build_panel_ui(rest: hikari.api.RESTClient) -> tuple:
     )
 
     for name in BOT_EXECUTABLES.keys():
-        emoji = "🟢" if startup_detected.get(name, False) else "🔴"
-        opt = menu.add_option(f"{emoji} {name}", name)
+        opt = menu.add_option(name, name)
         if selected_for_panel and selected_for_panel == name:
             opt.set_is_default(True)
 
@@ -299,7 +284,6 @@ def _build_panel_ui(rest: hikari.api.RESTClient) -> tuple:
     )
 
     return embed, row_select, row_btn
-
 
 async def _create_or_update_panel_message(rest: hikari.api.RESTClient) -> None:
     global _panel_message_id
@@ -370,7 +354,7 @@ async def controlpanel(ctx: lightbulb.Context) -> None:
 
 
 # -----------------------------
-# Dropdown selection handler
+# Dropdown selection handler (silent)
 # -----------------------------
 @plugin.listener(hikari.InteractionCreateEvent)
 async def on_select(event: hikari.InteractionCreateEvent) -> None:
@@ -382,6 +366,7 @@ async def on_select(event: hikari.InteractionCreateEvent) -> None:
 
     user = event.interaction.user
     if not _is_owner(user.id):
+        # still return error for non-owners
         await event.interaction.create_initial_response(
             hikari.ResponseType.MESSAGE_CREATE,
             content="❌ You are not allowed to use this control panel.",
@@ -389,47 +374,18 @@ async def on_select(event: hikari.InteractionCreateEvent) -> None:
         )
         return
 
+    # update internal state, but do NOT display anything
     botname = event.interaction.values[0]
     last_selected[user.id] = botname
 
-    exe_path = BOT_EXECUTABLES.get(botname)
-    if not exe_path:
+    # silent acknowledgement
+    try:
         await event.interaction.create_initial_response(
-            hikari.ResponseType.MESSAGE_CREATE,
-            content=f"❌ Bot `{botname}` not found in configuration.",
-            flags=hikari.MessageFlag.EPHEMERAL,
+            hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
         )
-        return
-
-    health = _get_bot_health(botname, exe_path)
-
-    status_emoji = "🟢" if health["running"] else "🔴"
-    status_text = "Online" if health["running"] else "Offline"
-    pid_str = ", ".join(str(p) for p in health["pids"]) if health["pids"] else "None"
-
-    error_text = "Yes" if health["has_error"] else "No"
-    log_age_str = health["log_age_str"]
-
-    info_embed = (
-        hikari.Embed(
-            title=f"{health['health_emoji']} {botname} — Health Summary",
-            description="Current status and health metrics for this bot.",
-            color=0x5865F2,
-        )
-        .add_field("Health", f"{health['health_emoji']} **{health['health_text']}**", inline=False)
-        .add_field("Status", f"{status_emoji} **{status_text}**", inline=True)
-        .add_field("PID(s)", f"`{pid_str}`", inline=True)
-        .add_field("CPU / RAM", f"`{health['cpu']}%` / `{health['ram_mb']} MB`", inline=True)
-        .add_field("Last Log Write", f"`{log_age_str}`", inline=True)
-        .add_field("Errors (.err)", f"`{error_text}`", inline=True)
-    )
-
-    await event.interaction.create_initial_response(
-        hikari.ResponseType.MESSAGE_CREATE,
-        embed=info_embed,
-        flags=hikari.MessageFlag.EPHEMERAL,
-    )
-
+    except hikari.NotFoundError:
+        # in rare cases Discord requires a follow-up
+        pass
 
 # -----------------------------
 # Button handler
