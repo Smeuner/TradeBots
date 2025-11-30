@@ -49,7 +49,8 @@ config.py
 
 Then edit `config.py` and set:
 
-- `DISCORD_TOKEN` — your Discord bot token  
+- `DISCORD_TOKEN` — your Discord bot token
+- `OWNER_IDS` - your discord ID
 - `BOT_EXECUTABLES` — names + paths to your `v4-bot.exe` folders
 - `ALERT_CHANNEL_ID` — channel where the status panel is posted  
 - `ALERT_USER_ID` — user to ping when a bot goes offline  
