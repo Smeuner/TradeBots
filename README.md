@@ -23,7 +23,7 @@ The bot is written for **Python 3.11.7** and uses:
 
 You can install everything using the batch file.
 
-### Option A — Automatic install (recommended)
+### Automatic install
 
 Run:
 
